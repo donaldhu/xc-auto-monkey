@@ -69,6 +69,7 @@ static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this poin
 - (void)testExample
 {
     while(true) {
+        [NSThread sleepForTimeInterval:0.1];
         if (arc4random() % 2 == 0) {
             [self tap];
         } else {

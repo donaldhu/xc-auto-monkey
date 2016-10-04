@@ -16,21 +16,21 @@
 static CGFloat const NotificationCenterPanThreshold = 12; // It will pan at this point
 static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this point
 
-@protocol PrivateXCTestDriverProtocol <NSObject>
-+ (id)sharedTestDriver;
+@interface XCTestDriver : NSObject
++ (instancetype)sharedTestDriver;
 - (id)managerProxy;
 @end
 
-@protocol PrivateXCTestManagerProtocol <NSObject>
+@interface XCTestManager : NSObject
 - (void)_XCT_synthesizeEvent:(id)arg1 completion:(void (^)(NSError *))arg2;
 @end
 
-@protocol PrivateXCSynthesizedEventRecordProtocol <NSObject>
+@interface XCSynthesizedEventRecord : NSObject
 - (id)initWithName:(id)arg1 interfaceOrientation:(long long)arg2;
 - (void)addPointerEventPath:(id)arg1;
 @end
 
-@protocol PrivateXCPointerEventPathProtocol <NSObject>
+@interface XCPointerEventPath : NSObject
 - (id)initForTouchAtPoint:(struct CGPoint)arg1 offset:(double)arg2;
 - (void)liftUpAtOffset:(double)arg1;
 - (void)moveToPoint:(struct CGPoint)arg1 atOffset:(double)arg2;
@@ -38,7 +38,7 @@ static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this poin
 
 @interface XCUIDeviceProxy : NSObject
 + (instancetype)sharedInstance;
-@property (nonatomic) id <PrivateXCTestManagerProtocol> proxy;
+@property (nonatomic) id proxy;
 - (void)tapAtPoint:(CGPoint)point;
 - (void)panFromPoint:(CGPoint)point toPoint:(CGPoint)toPoint withDuration:(CGFloat)duration;
 @end
@@ -54,8 +54,7 @@ static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this poin
     self.app = [[XCUIApplication alloc] init];
     [self.app launch];
     
-    id proxy = ((id <PrivateXCTestDriverProtocol> )[NSClassFromString(@"XCTestDriver") sharedTestDriver]).managerProxy;
-    [XCUIDeviceProxy sharedInstance].proxy = proxy;
+    [XCUIDeviceProxy sharedInstance].proxy = [XCTestDriver sharedTestDriver].managerProxy;
     
     CGRect frame = [self.app.windows elementBoundByIndex:0].frame;
     self.windowFrame = frame;
@@ -117,10 +116,10 @@ static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this poin
 
 - (void)tapAtPoint:(CGPoint)point
 {
-    id <PrivateXCSynthesizedEventRecordProtocol> eventRecords = ({
-        id <PrivateXCSynthesizedEventRecordProtocol> eventRecords = [[NSClassFromString(@"XCSynthesizedEventRecord") alloc] initWithName:@"" interfaceOrientation:0];
+    XCSynthesizedEventRecord *eventRecords = ({
+        XCSynthesizedEventRecord *eventRecords = [[XCSynthesizedEventRecord alloc] initWithName:@"" interfaceOrientation:0];
         
-        id <PrivateXCPointerEventPathProtocol> pointerEventPath = [[NSClassFromString(@"XCPointerEventPath") alloc] initForTouchAtPoint:point offset:0];
+        XCPointerEventPath *pointerEventPath = [[XCPointerEventPath alloc] initForTouchAtPoint:point offset:0];
         [pointerEventPath liftUpAtOffset:0.01];
         
         [eventRecords addPointerEventPath:pointerEventPath];
@@ -135,10 +134,10 @@ static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this poin
 
 - (void)panFromPoint:(CGPoint)point toPoint:(CGPoint)toPoint withDuration:(CGFloat)duration
 {
-    id <PrivateXCSynthesizedEventRecordProtocol> eventRecords = ({
-        id <PrivateXCSynthesizedEventRecordProtocol> eventRecords = [[NSClassFromString(@"XCSynthesizedEventRecord") alloc] initWithName:@"" interfaceOrientation:0];
+    XCSynthesizedEventRecord *eventRecords = ({
+        XCSynthesizedEventRecord *eventRecords = [[XCSynthesizedEventRecord alloc] initWithName:@"" interfaceOrientation:0];
         
-        id <PrivateXCPointerEventPathProtocol> pointerEventPath = [[NSClassFromString(@"XCPointerEventPath") alloc] initForTouchAtPoint:point offset:0];
+        XCPointerEventPath *pointerEventPath = [[XCPointerEventPath alloc] initForTouchAtPoint:point offset:0];
         [pointerEventPath moveToPoint:toPoint atOffset:duration];
         [pointerEventPath liftUpAtOffset:duration + 0.01];
         

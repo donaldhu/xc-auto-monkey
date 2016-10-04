@@ -45,6 +45,8 @@ static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this poin
 
 @implementation MonkeyUITests
 
+#pragma mark - Lifecycle methods
+
 - (void)setUp
 {
     [super setUp];
@@ -56,8 +58,7 @@ static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this poin
     
     [XCUIDeviceProxy sharedInstance].proxy = [XCTestDriver sharedTestDriver].managerProxy;
     
-    CGRect frame = [self.app.windows elementBoundByIndex:0].frame;
-    self.windowFrame = frame;
+    self.windowFrame = [self.app.windows elementBoundByIndex:0].frame;;
 }
 
 - (void)tearDown
@@ -65,7 +66,9 @@ static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this poin
     [super tearDown];
 }
 
-- (void)testExample
+#pragma mark - Test methods
+
+- (void)testMonkey
 {
     while(true) {
         [NSThread sleepForTimeInterval:0.1];
@@ -76,6 +79,8 @@ static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this poin
         }
     }
 }
+
+#pragma mark - Event methods
 
 - (void)tap
 {

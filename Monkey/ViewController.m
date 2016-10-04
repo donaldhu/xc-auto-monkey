@@ -10,57 +10,80 @@
 
 @interface ViewController ()
 @property (nonatomic) UITapGestureRecognizer *tapGestureRecognizer;
+@property (nonatomic) UIPanGestureRecognizer *panGestureRecognizer;
 @property (nonatomic) NSMutableArray <UIView *> *tapViews;
 @end
 
 @implementation ViewController
 
-- (void)viewDidLoad {
+#pragma mark - Lifecycle methods
+
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
     
     self.tapViews = [NSMutableArray new];
     
     self.tapGestureRecognizer = ({
         UITapGestureRecognizer *gestureRecognizer = [[UITapGestureRecognizer alloc] init];
-        gestureRecognizer.numberOfTapsRequired = 1;
         [gestureRecognizer addTarget:self action:@selector(didRecognizeTapGesture:)];
-        
+        gestureRecognizer;
+    });
+    
+    self.panGestureRecognizer = ({
+        UIPanGestureRecognizer *gestureRecognizer = [[UIPanGestureRecognizer alloc] init];
+        [gestureRecognizer addTarget:self action:@selector(didRecognizePanGesture:)];
         gestureRecognizer;
     });
     
     [self.view addGestureRecognizer:self.tapGestureRecognizer];
+    [self.view addGestureRecognizer:self.panGestureRecognizer];
     
     CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(update)];
     [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
 }
 
-- (void)didRecognizeTapGesture:(UITapGestureRecognizer *)tapGesture
+#pragma mark - UIGestureRecognizer selectors
+
+- (void)didRecognizeTapGesture:(UITapGestureRecognizer *)gesture
+{
+    CGPoint tapPoint = [gesture locationInView:self.view];
+    [self addViewAtPoint:tapPoint withColor:[UIColor orangeColor]];
+}
+
+- (void)didRecognizePanGesture:(UIPanGestureRecognizer *)gesture
+{
+    CGPoint tapPoint = [gesture locationInView:self.view];
+    [self addViewAtPoint:tapPoint withColor:[UIColor blueColor]];
+}
+
+#pragma mark - Helper methods
+
+- (void)addViewAtPoint:(CGPoint)point withColor:(UIColor *)color
 {
     CGSize tapViewSize = (CGSize){10,10};
-    CGPoint tapPoint = [tapGesture locationInView:self.view];
     
-    CGPoint origin = (CGPoint){tapPoint.x - tapViewSize.width / 2, tapPoint.y - tapViewSize.height / 2};
+    CGPoint origin = (CGPoint){point.x - tapViewSize.width / 2, point.y - tapViewSize.height / 2};
     
-    UIView *tapView = ({
+    UIView *view = ({
         UIView *view = [[UIView alloc] initWithFrame:CGRectMake(origin.x, origin.y, tapViewSize.width, tapViewSize.height)];
         view.userInteractionEnabled = NO;
-        view.backgroundColor = [UIColor orangeColor];
-        
+        view.backgroundColor = color;
         view;
     });
     
-    [self.tapViews addObject:tapView];
-    
-    [self.view addSubview:tapView];
+    [self.tapViews addObject:view];
+    [self.view addSubview:view];
 }
+
+#pragma mark - CADisplayLink selector
 
 - (void)update
 {
     UIView *view = [self.tapViews firstObject];
     
     if (view) {
-        view.alpha = view.alpha - 0.09;
+        view.alpha = view.alpha - 0.01 * self.tapViews.count;
         if (view.alpha <= 0) {
             [view removeFromSuperview];
             [self.tapViews removeObjectAtIndex:0];

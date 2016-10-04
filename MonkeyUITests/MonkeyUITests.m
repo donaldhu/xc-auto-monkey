@@ -22,8 +22,20 @@ typedef NS_ENUM(NSUInteger, XCMonkeyEventType) {
     XCMonkeyEventTypePan = 1
 };
 
-static CGFloat const NotificationCenterPanThreshold = 12; // It will pan at this point
-static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this point
+typedef struct {
+    CGFloat notificationCenterPanThreshold;
+    CGFloat controlCenterPanThreshold;
+} XCMonkeyDeviceMetrics;
+
+static XCMonkeyDeviceMetrics const XCMonkeyPhone6DeviceMetrics = {
+    .notificationCenterPanThreshold     = 12,
+    .controlCenterPanThreshold          = 13
+};
+
+static XCMonkeyDeviceMetrics const XCMonkeyPhone6PlusDeviceMetrics = {
+    .notificationCenterPanThreshold     = 41,
+    .controlCenterPanThreshold          = 34
+};
 
 static NSUInteger const XCMonkeyEventTypeCount = 2;
 
@@ -35,6 +47,7 @@ static NSUInteger const XCMonkeyEventTypeCount = 2;
 @property (nonatomic) XCUIApplication *app;
 @property (nonatomic) CGRect windowFrame;
 @property (nonatomic) XCTestManager *proxy;
+@property (nonatomic) XCMonkeyDeviceMetrics metrics;
 @end
 
 #pragma mark - Private class headers
@@ -76,6 +89,8 @@ static NSUInteger const XCMonkeyEventTypeCount = 2;
     
     self.windowFrame = [self.app.windows elementBoundByIndex:0].frame;
     [self seedEventWeights];
+    
+    self.metrics = (self.windowFrame.size.height == 667) ? XCMonkeyPhone6DeviceMetrics : XCMonkeyPhone6PlusDeviceMetrics;
 }
 
 - (void)tearDown
@@ -148,9 +163,9 @@ static CGPoint randomPointInFrame(CGRect frame)
 - (void)pan
 {
     CGRect nonControlCenterFrame = CGRectMake(0,
-                                              NotificationCenterPanThreshold + 1,
+                                              self.metrics.notificationCenterPanThreshold + 1,
                                               self.windowFrame.size.width,
-                                              self.windowFrame.size.height - NotificationCenterPanThreshold - ControlCenterPanThreshold - 2);
+                                              self.windowFrame.size.height - self.metrics.notificationCenterPanThreshold - self.metrics.controlCenterPanThreshold - 2);
     
     [self panFromPoint:randomPointInFrame(nonControlCenterFrame)
                toPoint:randomPointInFrame(nonControlCenterFrame)

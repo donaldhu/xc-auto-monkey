@@ -88,27 +88,32 @@ static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this poin
 
 #pragma mark - Event methods
 
+static CGFloat randomFloatWithUpperBound(CGFloat upper)
+{
+    return (CGFloat)arc4random() / UINT32_MAX * upper;
+}
+
+static CGPoint randomPointInFrame(CGRect frame)
+{
+    return CGPointMake(frame.origin.x + randomFloatWithUpperBound(frame.size.width),
+                       frame.origin.y + randomFloatWithUpperBound(frame.size.height));
+}
+
 - (void)tap
 {
-    CGFloat x = arc4random() % (int)self.windowFrame.size.width;
-    CGFloat y = arc4random() % (int)self.windowFrame.size.height;
-    
-    [[XCUIDeviceProxy sharedInstance] tapAtPoint:(CGPoint){x,y}];
+    [[XCUIDeviceProxy sharedInstance] tapAtPoint:randomPointInFrame(self.windowFrame)];
 }
 
 - (void)pan
 {
-    CGFloat x = arc4random() % (int)self.windowFrame.size.width;
-    CGFloat y = arc4random() % (int)self.windowFrame.size.height;
-    CGFloat dx = arc4random() % (int)self.windowFrame.size.width;
-    CGFloat dy = arc4random() % (int)self.windowFrame.size.height;
-
-    CGFloat controlCenterThreshold = self.windowFrame.size.height - ControlCenterPanThreshold;
-    while (y <= NotificationCenterPanThreshold || y >= controlCenterThreshold) {
-        y = arc4random() % (int)self.windowFrame.size.height;
-    }
+    CGRect nonControlCenterFrame = CGRectMake(0,
+                                              NotificationCenterPanThreshold + 1,
+                                              self.windowFrame.size.width,
+                                              self.windowFrame.size.height - NotificationCenterPanThreshold - ControlCenterPanThreshold - 2);
     
-    [[XCUIDeviceProxy sharedInstance] panFromPoint:(CGPoint){x,y} toPoint:(CGPoint){dx,dy} withDuration:0.3];
+    [[XCUIDeviceProxy sharedInstance] panFromPoint:randomPointInFrame(nonControlCenterFrame)
+                                           toPoint:randomPointInFrame(nonControlCenterFrame)
+                                      withDuration:0.3];
 }
 
 @end

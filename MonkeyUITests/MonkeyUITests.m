@@ -13,8 +13,22 @@
 @property (nonatomic) CGRect windowFrame;
 @end
 
+#pragma mark - Configuration
+
+static NSUInteger const XCMonkeyEventWeightTap = 10;
+static NSUInteger const XCMonkeyEventWeightPan = 10;
+
+#pragma mark - Constants
+
+typedef NS_ENUM(NSUInteger, XCMonkeyEventType) {
+    XCMonkeyEventTypeTap = 0,
+    XCMonkeyEventTypePan = 1
+};
+
 static CGFloat const NotificationCenterPanThreshold = 12; // It will pan at this point
 static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this point
+
+static NSUInteger const XCMonkeyEventTypeCount = 2;
 
 #pragma mark - Private class headers
 
@@ -64,7 +78,8 @@ static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this poin
     
     [XCUIDeviceProxy sharedInstance].proxy = [XCTestDriver sharedTestDriver].managerProxy;
     
-    self.windowFrame = [self.app.windows elementBoundByIndex:0].frame;;
+    self.windowFrame = [self.app.windows elementBoundByIndex:0].frame;
+    [self seedEventWeights];
 }
 
 - (void)tearDown
@@ -74,15 +89,43 @@ static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this poin
 
 #pragma mark - Test methods
 
+static NSUInteger maxWeight;
+static NSUInteger weights[] = {XCMonkeyEventWeightTap, XCMonkeyEventWeightPan};
+static NSUInteger events[] = {XCMonkeyEventTypeTap, XCMonkeyEventTypePan};
+
+- (void)seedEventWeights
+{
+    NSUInteger weightSum = 0;
+    for (NSUInteger eventIndex = 0; eventIndex < XCMonkeyEventTypeCount; eventIndex++) {
+        weightSum += weights[eventIndex];
+        weights[eventIndex] = weightSum;
+    }
+    
+    maxWeight = weights[XCMonkeyEventTypeCount - 1];
+}
+
 - (void)testMonkey
 {
     while(true) {
         [NSThread sleepForTimeInterval:0.1];
-        if (arc4random() % 2 == 0) {
-            [self tap];
-        } else {
-            [self pan];
+        NSUInteger randomNumber = arc4random() % maxWeight;
+        for (NSUInteger eventIndex = 0; eventIndex < XCMonkeyEventTypeCount; eventIndex++) {
+            if (randomNumber < weights[eventIndex]) {
+                [self performEventWithEventType:events[eventIndex]];
+            }
         }
+    }
+}
+
+- (void)performEventWithEventType:(XCMonkeyEventType)type
+{
+    switch (type) {
+        case XCMonkeyEventTypeTap:
+            [self tap];
+            break;
+        case XCMonkeyEventTypePan:
+            [self pan];
+            break;
     }
 }
 

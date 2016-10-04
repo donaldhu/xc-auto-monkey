@@ -178,13 +178,11 @@ static CGPoint randomPointInFrame(CGRect frame)
 - (void)tapAtPoint:(CGPoint)point
 {
     XCSynthesizedEventRecord *eventRecords = ({
-        XCSynthesizedEventRecord *eventRecords = [[XCSynthesizedEventRecord alloc] initWithName:@"" interfaceOrientation:0];
-        
         XCPointerEventPath *pointerEventPath = [[XCPointerEventPath alloc] initForTouchAtPoint:point offset:0];
         [pointerEventPath liftUpAtOffset:0.01];
         
+        XCSynthesizedEventRecord *eventRecords = [[XCSynthesizedEventRecord alloc] initWithName:@"" interfaceOrientation:0];
         [eventRecords addPointerEventPath:pointerEventPath];
-        
         eventRecords;
     });
     
@@ -196,14 +194,12 @@ static CGPoint randomPointInFrame(CGRect frame)
 - (void)panFromPoint:(CGPoint)point toPoint:(CGPoint)toPoint withDuration:(CGFloat)duration
 {
     XCSynthesizedEventRecord *eventRecords = ({
-        XCSynthesizedEventRecord *eventRecords = [[XCSynthesizedEventRecord alloc] initWithName:@"" interfaceOrientation:0];
-        
         XCPointerEventPath *pointerEventPath = [[XCPointerEventPath alloc] initForTouchAtPoint:point offset:0];
         [pointerEventPath moveToPoint:toPoint atOffset:duration];
         [pointerEventPath liftUpAtOffset:duration + 0.01];
         
+        XCSynthesizedEventRecord *eventRecords = [[XCSynthesizedEventRecord alloc] initWithName:@"" interfaceOrientation:0];
         [eventRecords addPointerEventPath:pointerEventPath];
-        
         eventRecords;
     });
     

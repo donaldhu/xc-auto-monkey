@@ -37,6 +37,7 @@
 + (instancetype)sharedInstance;
 @property (nonatomic) id <PrivateXCTestManagerProtocol> proxy;
 - (void)tapAtPoint:(CGPoint)point;
+- (void)panFromPoint:(CGPoint)point toPoint:(CGPoint)toPoint withDuration:(CGFloat)duration;
 @end
 
 @implementation MonkeyUITests
@@ -65,11 +66,30 @@
 - (void)testExample
 {
     while(true) {
-        CGFloat x = arc4random() % (int)self.windowFrame.size.width;
-        CGFloat y = arc4random() % (int)self.windowFrame.size.height;
-        
-        [[XCUIDeviceProxy sharedInstance] tapAtPoint:(CGPoint){x,y}];
+        if (arc4random() % 2 == 0) {
+            [self tap];
+        } else {
+            [self pan];
+        }
     }
+}
+
+- (void)tap
+{
+    CGFloat x = arc4random() % (int)self.windowFrame.size.width;
+    CGFloat y = arc4random() % (int)self.windowFrame.size.height;
+    
+    [[XCUIDeviceProxy sharedInstance] tapAtPoint:(CGPoint){x,y}];
+}
+
+- (void)pan
+{
+    CGFloat x = arc4random() % (int)self.windowFrame.size.width;
+    CGFloat y = arc4random() % (int)self.windowFrame.size.height;
+    CGFloat dx = arc4random() % (int)self.windowFrame.size.width;
+    CGFloat dy = arc4random() % (int)self.windowFrame.size.height;
+
+    [[XCUIDeviceProxy sharedInstance] panFromPoint:(CGPoint){x,y} toPoint:(CGPoint){dx,dy} withDuration:0.3];
 }
 
 @end
@@ -93,6 +113,25 @@
         
         id <PrivateXCPointerEventPathProtocol> pointerEventPath = [[NSClassFromString(@"XCPointerEventPath") alloc] initForTouchAtPoint:point offset:0];
         [pointerEventPath liftUpAtOffset:0.01];
+        
+        [eventRecords addPointerEventPath:pointerEventPath];
+        
+        eventRecords;
+    });
+    
+    void (^completion)(NSError *) = ^(NSError *error) {};
+    
+    [self.proxy _XCT_synthesizeEvent:eventRecords completion:completion];
+}
+
+- (void)panFromPoint:(CGPoint)point toPoint:(CGPoint)toPoint withDuration:(CGFloat)duration
+{
+    id <PrivateXCSynthesizedEventRecordProtocol> eventRecords = ({
+        id <PrivateXCSynthesizedEventRecordProtocol> eventRecords = [[NSClassFromString(@"XCSynthesizedEventRecord") alloc] initWithName:@"" interfaceOrientation:0];
+        
+        id <PrivateXCPointerEventPathProtocol> pointerEventPath = [[NSClassFromString(@"XCPointerEventPath") alloc] initForTouchAtPoint:point offset:0];
+        [pointerEventPath moveToPoint:toPoint atOffset:duration];
+        [pointerEventPath liftUpAtOffset:duration + 0.01];
         
         [eventRecords addPointerEventPath:pointerEventPath];
         

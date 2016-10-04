@@ -15,6 +15,8 @@
 
 #pragma mark - Configuration
 
+static CGFloat const XCMonkeyEventDelay = 0.1;
+
 static NSUInteger const XCMonkeyEventWeightTap = 10;
 static NSUInteger const XCMonkeyEventWeightPan = 10;
 
@@ -107,7 +109,7 @@ static NSUInteger events[] = {XCMonkeyEventTypeTap, XCMonkeyEventTypePan};
 - (void)testMonkey
 {
     while(true) {
-        [NSThread sleepForTimeInterval:0.1];
+        [NSThread sleepForTimeInterval:XCMonkeyEventDelay];
         NSUInteger randomNumber = arc4random() % maxWeight;
         for (NSUInteger eventIndex = 0; eventIndex < XCMonkeyEventTypeCount; eventIndex++) {
             if (randomNumber < weights[eventIndex]) {

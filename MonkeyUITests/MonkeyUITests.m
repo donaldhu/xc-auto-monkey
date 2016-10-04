@@ -181,7 +181,7 @@ static CGPoint randomPointInFrame(CGRect frame)
         XCPointerEventPath *pointerEventPath = [[XCPointerEventPath alloc] initForTouchAtPoint:point offset:0];
         [pointerEventPath liftUpAtOffset:0.01];
         
-        XCSynthesizedEventRecord *eventRecords = [[XCSynthesizedEventRecord alloc] initWithName:@"" interfaceOrientation:0];
+        XCSynthesizedEventRecord *eventRecords = [[XCSynthesizedEventRecord alloc] initWithName:nil interfaceOrientation:0];
         [eventRecords addPointerEventPath:pointerEventPath];
         eventRecords;
     });
@@ -198,7 +198,7 @@ static CGPoint randomPointInFrame(CGRect frame)
         [pointerEventPath moveToPoint:toPoint atOffset:duration];
         [pointerEventPath liftUpAtOffset:duration + 0.01];
         
-        XCSynthesizedEventRecord *eventRecords = [[XCSynthesizedEventRecord alloc] initWithName:@"" interfaceOrientation:0];
+        XCSynthesizedEventRecord *eventRecords = [[XCSynthesizedEventRecord alloc] initWithName:nil interfaceOrientation:0];
         [eventRecords addPointerEventPath:pointerEventPath];
         eventRecords;
     });

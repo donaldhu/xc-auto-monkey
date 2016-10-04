@@ -8,11 +8,6 @@
 
 #import <XCTest/XCTest.h>
 
-@interface MonkeyUITests : XCTestCase
-@property (nonatomic) XCUIApplication *app;
-@property (nonatomic) CGRect windowFrame;
-@end
-
 #pragma mark - Configuration
 
 static CGFloat const XCMonkeyEventDelay = 0.1;
@@ -32,9 +27,17 @@ static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this poin
 
 static NSUInteger const XCMonkeyEventTypeCount = 2;
 
-#pragma mark - Private class headers
+#pragma mark - Custom class headers
 
 @class XCTestDriver, XCTestManager, XCSynthesizedEventRecord, XCPointerEventPath;
+
+@interface MonkeyUITests : XCTestCase
+@property (nonatomic) XCUIApplication *app;
+@property (nonatomic) CGRect windowFrame;
+@property (nonatomic) XCTestManager *proxy;
+@end
+
+#pragma mark - Private class headers
 
 @interface XCTestDriver : NSObject
 + (instancetype)sharedTestDriver;
@@ -56,15 +59,6 @@ static NSUInteger const XCMonkeyEventTypeCount = 2;
 - (void)moveToPoint:(struct CGPoint)arg1 atOffset:(double)arg2;
 @end
 
-#pragma mark - Custom class headers
-
-@interface XCUIDeviceProxy : NSObject
-+ (instancetype)sharedInstance;
-@property (nonatomic) XCTestManager *proxy;
-- (void)tapAtPoint:(CGPoint)point;
-- (void)panFromPoint:(CGPoint)point toPoint:(CGPoint)toPoint withDuration:(CGFloat)duration;
-@end
-
 @implementation MonkeyUITests
 
 #pragma mark - Lifecycle methods
@@ -78,7 +72,7 @@ static NSUInteger const XCMonkeyEventTypeCount = 2;
     self.app = [[XCUIApplication alloc] init];
     [self.app launch];
     
-    [XCUIDeviceProxy sharedInstance].proxy = [XCTestDriver sharedTestDriver].managerProxy;
+    self.proxy = [XCTestDriver sharedTestDriver].managerProxy;
     
     self.windowFrame = [self.app.windows elementBoundByIndex:0].frame;
     [self seedEventWeights];
@@ -89,7 +83,22 @@ static NSUInteger const XCMonkeyEventTypeCount = 2;
     [super tearDown];
 }
 
-#pragma mark - Test methods
+#pragma mark - Monkey test
+
+- (void)testMonkey
+{
+    while(true) {
+        [NSThread sleepForTimeInterval:XCMonkeyEventDelay];
+        NSUInteger randomNumber = arc4random() % maxWeight;
+        for (NSUInteger eventIndex = 0; eventIndex < XCMonkeyEventTypeCount; eventIndex++) {
+            if (randomNumber < weights[eventIndex]) {
+                [self performEventWithEventType:events[eventIndex]];
+            }
+        }
+    }
+}
+
+#pragma mark - Helper functions for randomness
 
 static NSUInteger maxWeight;
 static NSUInteger weights[] = {XCMonkeyEventWeightTap, XCMonkeyEventWeightPan};
@@ -106,18 +115,18 @@ static NSUInteger events[] = {XCMonkeyEventTypeTap, XCMonkeyEventTypePan};
     maxWeight = weights[XCMonkeyEventTypeCount - 1];
 }
 
-- (void)testMonkey
+static CGFloat randomFloatWithUpperBound(CGFloat upper)
 {
-    while(true) {
-        [NSThread sleepForTimeInterval:XCMonkeyEventDelay];
-        NSUInteger randomNumber = arc4random() % maxWeight;
-        for (NSUInteger eventIndex = 0; eventIndex < XCMonkeyEventTypeCount; eventIndex++) {
-            if (randomNumber < weights[eventIndex]) {
-                [self performEventWithEventType:events[eventIndex]];
-            }
-        }
-    }
+    return (CGFloat)arc4random() / UINT32_MAX * upper;
 }
+
+static CGPoint randomPointInFrame(CGRect frame)
+{
+    return CGPointMake(frame.origin.x + randomFloatWithUpperBound(frame.size.width),
+                       frame.origin.y + randomFloatWithUpperBound(frame.size.height));
+}
+
+#pragma mark - Helper methods for events
 
 - (void)performEventWithEventType:(XCMonkeyEventType)type
 {
@@ -131,22 +140,9 @@ static NSUInteger events[] = {XCMonkeyEventTypeTap, XCMonkeyEventTypePan};
     }
 }
 
-#pragma mark - Event methods
-
-static CGFloat randomFloatWithUpperBound(CGFloat upper)
-{
-    return (CGFloat)arc4random() / UINT32_MAX * upper;
-}
-
-static CGPoint randomPointInFrame(CGRect frame)
-{
-    return CGPointMake(frame.origin.x + randomFloatWithUpperBound(frame.size.width),
-                       frame.origin.y + randomFloatWithUpperBound(frame.size.height));
-}
-
 - (void)tap
 {
-    [[XCUIDeviceProxy sharedInstance] tapAtPoint:randomPointInFrame(self.windowFrame)];
+    [self tapAtPoint:randomPointInFrame(self.windowFrame)];
 }
 
 - (void)pan
@@ -156,24 +152,12 @@ static CGPoint randomPointInFrame(CGRect frame)
                                               self.windowFrame.size.width,
                                               self.windowFrame.size.height - NotificationCenterPanThreshold - ControlCenterPanThreshold - 2);
     
-    [[XCUIDeviceProxy sharedInstance] panFromPoint:randomPointInFrame(nonControlCenterFrame)
-                                           toPoint:randomPointInFrame(nonControlCenterFrame)
-                                      withDuration:0.3];
+    [self panFromPoint:randomPointInFrame(nonControlCenterFrame)
+               toPoint:randomPointInFrame(nonControlCenterFrame)
+          withDuration:0.3];
 }
 
-@end
-
-@implementation XCUIDeviceProxy
-
-+ (instancetype)sharedInstance
-{
-    static XCUIDeviceProxy *sharedInstance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[XCUIDeviceProxy alloc] init];
-    });
-    return sharedInstance;
-}
+#pragma mark - Helper methods for interacting with proxy
 
 - (void)tapAtPoint:(CGPoint)point
 {

@@ -13,6 +13,9 @@
 @property (nonatomic) CGRect windowFrame;
 @end
 
+static CGFloat const NotificationCenterPanThreshold = 12; // It will pan at this point
+static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this point
+
 @protocol PrivateXCTestDriverProtocol <NSObject>
 + (id)sharedTestDriver;
 - (id)managerProxy;
@@ -89,6 +92,11 @@
     CGFloat dx = arc4random() % (int)self.windowFrame.size.width;
     CGFloat dy = arc4random() % (int)self.windowFrame.size.height;
 
+    CGFloat controlCenterThreshold = self.windowFrame.size.height - ControlCenterPanThreshold;
+    while (y <= NotificationCenterPanThreshold || y >= controlCenterThreshold) {
+        y = arc4random() % (int)self.windowFrame.size.height;
+    }
+    
     [[XCUIDeviceProxy sharedInstance] panFromPoint:(CGPoint){x,y} toPoint:(CGPoint){dx,dy} withDuration:0.3];
 }
 

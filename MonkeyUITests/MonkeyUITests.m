@@ -16,18 +16,22 @@
 static CGFloat const NotificationCenterPanThreshold = 12; // It will pan at this point
 static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this point
 
+#pragma mark - Private class headers
+
+@class XCTestDriver, XCTestManager, XCSynthesizedEventRecord, XCPointerEventPath;
+
 @interface XCTestDriver : NSObject
 + (instancetype)sharedTestDriver;
-- (id)managerProxy;
+- (XCTestManager *)managerProxy;
 @end
 
 @interface XCTestManager : NSObject
-- (void)_XCT_synthesizeEvent:(id)arg1 completion:(void (^)(NSError *))arg2;
+- (void)_XCT_synthesizeEvent:(XCSynthesizedEventRecord *)arg1 completion:(void (^)(NSError *))arg2;
 @end
 
 @interface XCSynthesizedEventRecord : NSObject
-- (id)initWithName:(id)arg1 interfaceOrientation:(long long)arg2;
-- (void)addPointerEventPath:(id)arg1;
+- (id)initWithName:(NSString *)arg1 interfaceOrientation:(long long)arg2;
+- (void)addPointerEventPath:(XCPointerEventPath *)arg1;
 @end
 
 @interface XCPointerEventPath : NSObject
@@ -36,9 +40,11 @@ static CGFloat const ControlCenterPanThreshold = 13; // It will pan at this poin
 - (void)moveToPoint:(struct CGPoint)arg1 atOffset:(double)arg2;
 @end
 
+#pragma mark - Custom class headers
+
 @interface XCUIDeviceProxy : NSObject
 + (instancetype)sharedInstance;
-@property (nonatomic) id proxy;
+@property (nonatomic) XCTestManager *proxy;
 - (void)tapAtPoint:(CGPoint)point;
 - (void)panFromPoint:(CGPoint)point toPoint:(CGPoint)toPoint withDuration:(CGFloat)duration;
 @end

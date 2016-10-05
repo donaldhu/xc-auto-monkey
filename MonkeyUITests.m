@@ -12,6 +12,9 @@
 
 static NSTimeInterval const XCMonkeyEventDelay = 0.1;  // In seconds
 
+// Weights control the probability of the monkey performing an action
+// A heigher weights results in a higher probability
+
 static NSUInteger const XCMonkeyEventWeightTap = 10;
 static NSUInteger const XCMonkeyEventWeightPan = 10;
 

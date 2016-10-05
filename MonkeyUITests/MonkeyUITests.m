@@ -72,9 +72,13 @@ static NSUInteger const XCMonkeyEventTypeCount = 2;
 - (void)moveToPoint:(struct CGPoint)arg1 atOffset:(double)arg2;
 @end
 
+#pragma mark - Monkey implementation
+
 @implementation MonkeyUITests
 
-#pragma mark - Lifecycle methods
+static NSUInteger maxWeight;
+static NSUInteger weights[] = {XCMonkeyEventWeightTap, XCMonkeyEventWeightPan};
+static NSUInteger events[] = {XCMonkeyEventTypeTap, XCMonkeyEventTypePan};
 
 - (void)setUp
 {
@@ -114,10 +118,6 @@ static NSUInteger const XCMonkeyEventTypeCount = 2;
 }
 
 #pragma mark - Helper functions for randomness
-
-static NSUInteger maxWeight;
-static NSUInteger weights[] = {XCMonkeyEventWeightTap, XCMonkeyEventWeightPan};
-static NSUInteger events[] = {XCMonkeyEventTypeTap, XCMonkeyEventTypePan};
 
 - (void)seedEventWeights
 {

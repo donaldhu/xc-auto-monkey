@@ -1,4 +1,4 @@
-# xc-auto-monkey
+# XC AutoMonkey
 Blazingly fast monkey to stress test your iOS application
 
 # Installation

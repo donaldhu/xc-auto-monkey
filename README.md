@@ -17,3 +17,14 @@ static NSTimeInterval const XCMonkeyEventDelay = 0.1;  // In seconds
 static NSUInteger const XCMonkeyEventWeightTap = 10;
 static NSUInteger const XCMonkeyEventWeightPan = 10;
 ```
+
+# Coming Soon
+* New gestures and events
+  * Orientation
+  * Pinch open and close
+  * Volume up and down
+  * Multiple taps
+  * Lock
+  * Background and foreground
+* Improved device support for not triggering control and notification centers
+* Time and event count passing test conditions

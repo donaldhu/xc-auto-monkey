@@ -10,7 +10,7 @@
 
 #pragma mark - Configuration
 
-static CGFloat const XCMonkeyEventDelay = 0.1;
+static NSTimeInterval const XCMonkeyEventDelay = 0.1;  // In seconds
 
 static NSUInteger const XCMonkeyEventWeightTap = 10;
 static NSUInteger const XCMonkeyEventWeightPan = 10;

@@ -13,7 +13,7 @@
 		21229EC51DA08ABA0028CA2C /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 21229EC31DA08ABA0028CA2C /* Main.storyboard */; };
 		21229EC71DA08ABA0028CA2C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 21229EC61DA08ABA0028CA2C /* Assets.xcassets */; };
 		21229ECA1DA08ABA0028CA2C /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 21229EC81DA08ABA0028CA2C /* LaunchScreen.storyboard */; };
-		21229EE01DA08ABA0028CA2C /* MonkeyUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 21229EDF1DA08ABA0028CA2C /* MonkeyUITests.m */; };
+		34BC08661DA589BC00F83B56 /* MonkeyUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 34BC08651DA589BC00F83B56 /* MonkeyUITests.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,8 +38,8 @@
 		21229EC91DA08ABA0028CA2C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		21229ECB1DA08ABA0028CA2C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		21229EDB1DA08ABA0028CA2C /* MonkeyUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MonkeyUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		21229EDF1DA08ABA0028CA2C /* MonkeyUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MonkeyUITests.m; sourceTree = "<group>"; };
 		21229EE11DA08ABA0028CA2C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		34BC08651DA589BC00F83B56 /* MonkeyUITests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MonkeyUITests.m; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -105,7 +105,7 @@
 		21229EDE1DA08ABA0028CA2C /* MonkeyUITests */ = {
 			isa = PBXGroup;
 			children = (
-				21229EDF1DA08ABA0028CA2C /* MonkeyUITests.m */,
+				34BC08651DA589BC00F83B56 /* MonkeyUITests.m */,
 				21229EE11DA08ABA0028CA2C /* Info.plist */,
 			);
 			path = MonkeyUITests;
@@ -223,7 +223,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				21229EE01DA08ABA0028CA2C /* MonkeyUITests.m in Sources */,
+				34BC08661DA589BC00F83B56 /* MonkeyUITests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

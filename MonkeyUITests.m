@@ -115,6 +115,7 @@ static NSUInteger events[] = {XCMonkeyEventTypeTap, XCMonkeyEventTypePan};
         for (NSUInteger eventIndex = 0; eventIndex < XCMonkeyEventTypeCount; eventIndex++) {
             if (randomNumber < weights[eventIndex]) {
                 [self performEventWithEventType:events[eventIndex]];
+                break;
             }
         }
     }

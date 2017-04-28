@@ -60,6 +60,11 @@ static NSUInteger const XCMonkeyEventTypeCount = 2;
 - (XCTestManager *)managerProxy;
 @end
 
+@interface XCTRunnerDaemonSession : NSObject
++ (instancetype)sharedSession;
+- (XCTestManager *)daemonProxy;
+@end
+
 @interface XCTestManager : NSObject
 - (void)_XCT_synthesizeEvent:(XCSynthesizedEventRecord *)arg1 completion:(void (^)(NSError *))arg2;
 @end
@@ -92,7 +97,12 @@ static NSUInteger events[] = {XCMonkeyEventTypeTap, XCMonkeyEventTypePan};
     self.app = [[XCUIApplication alloc] init];
     [self.app launch];
     
-    self.proxy = [XCTestDriver sharedTestDriver].managerProxy;
+    if ([[XCTestDriver sharedTestDriver] respondsToSelector:@selector(managerProxy)]) {
+        self.proxy = [XCTestDriver sharedTestDriver].managerProxy;
+    }
+    else {
+        self.proxy = [XCTRunnerDaemonSession sharedSession].daemonProxy;
+    }
     
     self.windowFrame = [self.app.windows elementBoundByIndex:0].frame;
     [self seedEventWeights];

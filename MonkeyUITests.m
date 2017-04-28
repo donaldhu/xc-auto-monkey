@@ -15,15 +15,25 @@ static NSTimeInterval const XCMonkeyEventDelay = 0.1;  // In seconds
 // Weights control the probability of the monkey performing an action
 // A heigher weights results in a higher probability
 
-static NSUInteger const XCMonkeyEventWeightTap = 10;
-static NSUInteger const XCMonkeyEventWeightPan = 10;
+static NSUInteger const XCMonkeyEventWeightTap = 100;
+static NSUInteger const XCMonkeyEventWeightPan = 100;
+static NSUInteger const XCMonkeyEventWeightBackgroundAndForeground = 1;
 
 #pragma mark - Constants
 
 typedef NS_ENUM(NSUInteger, XCMonkeyEventType) {
-    XCMonkeyEventTypeTap = 0,
-    XCMonkeyEventTypePan = 1
+    XCMonkeyEventTypeTap    = 0,
+    XCMonkeyEventTypePan    = 1,
+    XCMonkeyEventTypeHome   = 2
 };
+
+static NSUInteger const XCMonkeyEventTypeCount = 3;
+
+static CGFloat XCMonkeyEventTapDuration = 0.01;
+static CGFloat XCMonkeyEventPanDuration = 0.3;
+static CGFloat XCMonkeyEventHomePreHomeWaitDuration = 0.5;
+static CGFloat XCMonkeyEventHomePreLaunchWaitDuration = 0.5;
+static CGFloat XCMonkeyEventHomePostLaunchWaitDuration = 0.5;
 
 typedef struct {
     CGFloat notificationCenterPanThreshold;
@@ -39,8 +49,6 @@ static XCMonkeyDeviceMetrics const XCMonkeyPhone6PlusDeviceMetrics = {
     .notificationCenterPanThreshold     = 41,
     .controlCenterPanThreshold          = 34
 };
-
-static NSUInteger const XCMonkeyEventTypeCount = 2;
 
 #pragma mark - Custom class headers
 
@@ -67,11 +75,16 @@ static NSUInteger const XCMonkeyEventTypeCount = 2;
 
 @interface XCTestManager : NSObject
 - (void)_XCT_synthesizeEvent:(XCSynthesizedEventRecord *)arg1 completion:(void (^)(NSError *))arg2;
+- (void)_XCT_launchApplicationWithBundleID:(NSString *)arg1 arguments:(NSArray *)arg2 environment:(NSDictionary *)arg3 completion:(void (^)(NSError *))arg4;
 @end
 
 @interface XCSynthesizedEventRecord : NSObject
 - (id)initWithName:(NSString *)arg1 interfaceOrientation:(long long)arg2;
 - (void)addPointerEventPath:(XCPointerEventPath *)arg1;
+@end
+
+@interface XCUIApplication()
+@property (nonatomic) NSString *bundleID;
 @end
 
 @interface XCPointerEventPath : NSObject
@@ -85,8 +98,8 @@ static NSUInteger const XCMonkeyEventTypeCount = 2;
 @implementation MonkeyUITests
 
 static NSUInteger maxWeight;
-static NSUInteger weights[] = {XCMonkeyEventWeightTap, XCMonkeyEventWeightPan};
-static NSUInteger events[] = {XCMonkeyEventTypeTap, XCMonkeyEventTypePan};
+static NSUInteger weights[] = {XCMonkeyEventWeightTap, XCMonkeyEventWeightPan, XCMonkeyEventWeightBackgroundAndForeground};
+static NSUInteger events[] = {XCMonkeyEventTypeTap, XCMonkeyEventTypePan, XCMonkeyEventTypeHome};
 
 - (void)setUp
 {
@@ -166,6 +179,9 @@ static CGPoint randomPointInFrame(CGRect frame)
         case XCMonkeyEventTypePan:
             [self pan];
             break;
+        case XCMonkeyEventTypeHome:
+            [self home];
+            break;
     }
 }
 
@@ -183,7 +199,20 @@ static CGPoint randomPointInFrame(CGRect frame)
     
     [self panFromPoint:randomPointInFrame(nonControlCenterFrame)
                toPoint:randomPointInFrame(nonControlCenterFrame)
-          withDuration:0.3];
+          withDuration:XCMonkeyEventPanDuration];
+}
+
+- (void)home
+{
+    [NSThread sleepForTimeInterval:XCMonkeyEventHomePreHomeWaitDuration];
+    [[XCUIDevice sharedDevice] pressButton:XCUIDeviceButtonHome];
+    
+    [NSThread sleepForTimeInterval:XCMonkeyEventHomePreLaunchWaitDuration];
+    [self.proxy _XCT_launchApplicationWithBundleID:self.app.bundleID
+                                         arguments:@[]
+                                       environment:@{}
+                                        completion:^(NSError *error) {}];
+    [NSThread sleepForTimeInterval:XCMonkeyEventHomePostLaunchWaitDuration];
 }
 
 #pragma mark - Helper methods for interacting with proxy
@@ -192,7 +221,7 @@ static CGPoint randomPointInFrame(CGRect frame)
 {
     XCSynthesizedEventRecord *eventRecord = ({
         XCPointerEventPath *pointerEventPath = [[XCPointerEventPath alloc] initForTouchAtPoint:point offset:0];
-        [pointerEventPath liftUpAtOffset:0.01];
+        [pointerEventPath liftUpAtOffset:XCMonkeyEventTapDuration];
         
         XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:nil interfaceOrientation:0];
         [eventRecord addPointerEventPath:pointerEventPath];
@@ -209,7 +238,7 @@ static CGPoint randomPointInFrame(CGRect frame)
     XCSynthesizedEventRecord *eventRecord = ({
         XCPointerEventPath *pointerEventPath = [[XCPointerEventPath alloc] initForTouchAtPoint:point offset:0];
         [pointerEventPath moveToPoint:toPoint atOffset:duration];
-        [pointerEventPath liftUpAtOffset:duration + 0.01];
+        [pointerEventPath liftUpAtOffset:duration + XCMonkeyEventTapDuration];
         
         XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:nil interfaceOrientation:0];
         [eventRecord addPointerEventPath:pointerEventPath];

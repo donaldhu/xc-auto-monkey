@@ -14,11 +14,19 @@ At the top of MonkeyUITests.m, there are some configuration settings:
 ```obj-c
 static NSTimeInterval const XCMonkeyEventDelay = 0.1;  // In seconds
 
+// Test pass conditions
+// Set the value to 0 if you do not want to use the pass condition
+// The monkey test will pass if ANY of the conditions are met
+
+static NSUInteger const XCMonkeyEventsCount = 100000;
+static NSTimeInterval const XCMonkeyDuration = 60 * 60 * 5; // In seconds
+
 // Weights control the probability of the monkey performing an action
 // A heigher weights results in a higher probability
 
-static NSUInteger const XCMonkeyEventWeightTap = 10;
-static NSUInteger const XCMonkeyEventWeightPan = 10;
+static NSUInteger const XCMonkeyEventWeightTap = 500;
+static NSUInteger const XCMonkeyEventWeightPan = 50;
+static NSUInteger const XCMonkeyEventWeightBackgroundAndForeground = 1;
 ```
 
 # Coming Soon
@@ -28,6 +36,4 @@ static NSUInteger const XCMonkeyEventWeightPan = 10;
   * Volume up and down
   * Multiple taps
   * Lock
-  * Background and foreground
 * Improved device support for not triggering control and notification centers
-* Time and event count passing test conditions

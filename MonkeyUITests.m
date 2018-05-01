@@ -12,6 +12,13 @@
 
 static NSTimeInterval const XCMonkeyEventDelay = 0.1;  // In seconds
 
+// Test pass conditions
+// Set the value to 0 if you do not want to use the pass condition
+// The monkey test will pass if ANY of the conditions are met
+
+static NSUInteger const XCMonkeyEventsCount = 100000;
+static NSTimeInterval const XCMonkeyDuration = 60 * 60 * 5; // In seconds
+
 // Weights control the probability of the monkey performing an action
 // A heigher weights results in a higher probability
 
@@ -59,6 +66,8 @@ static XCMonkeyDeviceMetrics const XCMonkeyPhone6PlusDeviceMetrics = {
 @property (nonatomic) CGRect windowFrame;
 @property (nonatomic) XCTestManager *proxy;
 @property (nonatomic) XCMonkeyDeviceMetrics metrics;
+@property (nonatomic) NSUInteger eventCount;
+@property (nonatomic) NSTimeInterval endEpochTime;
 @end
 
 #pragma mark - Private class headers
@@ -121,6 +130,8 @@ static NSUInteger events[] = {XCMonkeyEventTypeTap, XCMonkeyEventTypePan, XCMonk
     [self seedEventWeights];
     
     self.metrics = (self.windowFrame.size.height == 667) ? XCMonkeyPhone6DeviceMetrics : XCMonkeyPhone6PlusDeviceMetrics;
+    
+    self.endEpochTime = [[NSDate date] timeIntervalSince1970] + XCMonkeyDuration;
 }
 
 - (void)tearDown
@@ -132,7 +143,8 @@ static NSUInteger events[] = {XCMonkeyEventTypeTap, XCMonkeyEventTypePan, XCMonk
 
 - (void)testMonkey
 {
-    while(true) {
+    BOOL isRunning = true;
+    while(isRunning) {
         [NSThread sleepForTimeInterval:XCMonkeyEventDelay];
         NSUInteger randomNumber = arc4random() % maxWeight;
         for (NSUInteger eventIndex = 0; eventIndex < XCMonkeyEventTypeCount; eventIndex++) {
@@ -141,7 +153,19 @@ static NSUInteger events[] = {XCMonkeyEventTypeTap, XCMonkeyEventTypePan, XCMonk
                 break;
             }
         }
+
+        self.eventCount++;
+        
+        isRunning = ![self didPassMonkeyTest];
     }
+}
+
+- (BOOL)didPassMonkeyTest
+{
+    BOOL eventCountPassed = XCMonkeyEventsCount != 0 && self.eventCount >= XCMonkeyEventsCount;
+    BOOL durationPassed = XCMonkeyDuration != 0 && self.endEpochTime <= [[NSDate date] timeIntervalSince1970];
+
+    return eventCountPassed || durationPassed;
 }
 
 #pragma mark - Helper functions for randomness

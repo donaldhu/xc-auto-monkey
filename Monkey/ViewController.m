@@ -11,6 +11,7 @@
 @interface ViewController ()
 @property (nonatomic) UITapGestureRecognizer *tapGestureRecognizer;
 @property (nonatomic) UIPanGestureRecognizer *panGestureRecognizer;
+@property (nonatomic) UIPinchGestureRecognizer *pinchGestureRecognizer;
 @property (nonatomic) NSMutableArray <UIView *> *tapViews;
 @end
 
@@ -36,8 +37,15 @@
         gestureRecognizer;
     });
     
+    self.pinchGestureRecognizer = ({
+        UIPinchGestureRecognizer *gestureRecognizer = [[UIPinchGestureRecognizer alloc] init];
+        [gestureRecognizer addTarget:self action:@selector(didRecognizePinchGesture:)];
+        gestureRecognizer;
+    });
+    
     [self.view addGestureRecognizer:self.tapGestureRecognizer];
     [self.view addGestureRecognizer:self.panGestureRecognizer];
+    [self.view addGestureRecognizer:self.pinchGestureRecognizer];
     
     CADisplayLink *displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(update)];
     [displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSDefaultRunLoopMode];
@@ -55,6 +63,15 @@
 {
     CGPoint tapPoint = [gesture locationInView:self.view];
     [self addViewAtPoint:tapPoint withColor:[UIColor blueColor]];
+}
+
+- (void)didRecognizePinchGesture:(UIPinchGestureRecognizer *)gesture
+{
+    CGPoint touchLocation0 = [gesture locationOfTouch:0 inView:self.view];
+    CGPoint touchLocation1 = [gesture locationOfTouch:1 inView:self.view];
+    
+    [self addViewAtPoint:touchLocation0 withColor:[UIColor greenColor]];
+    [self addViewAtPoint:touchLocation1 withColor:[UIColor greenColor]];
 }
 
 #pragma mark - Helper methods

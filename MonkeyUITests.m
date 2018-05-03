@@ -25,6 +25,7 @@ static NSTimeInterval const XCMonkeyDuration = 60 * 60 * 5; // In seconds
 static NSUInteger const XCMonkeyEventWeightTap = 500;
 static NSUInteger const XCMonkeyEventWeightPan = 50;
 static NSUInteger const XCMonkeyEventWeightPinchIn = 50;
+static NSUInteger const XCMonkeyEventWeightPinchOut = 50;
 static NSUInteger const XCMonkeyEventWeightBackgroundAndForeground = 1;
 
 #pragma mark - Constants
@@ -33,10 +34,11 @@ typedef NS_ENUM(NSUInteger, XCMonkeyEventType) {
     XCMonkeyEventTypeTap        = 0,
     XCMonkeyEventTypePan        = 1,
     XCMonkeyEventTypePinchIn    = 2,
-    XCMonkeyEventTypeHome       = 3
+    XCMonkeyEventTypePinchOut   = 3,
+    XCMonkeyEventTypeHome       = 4
 };
 
-static NSUInteger const XCMonkeyEventTypeCount = 4;
+static NSUInteger const XCMonkeyEventTypeCount = 5;
 
 static CGFloat XCMonkeyEventTapDuration = 0.01;
 static CGFloat XCMonkeyEventPanDuration = 0.3;
@@ -111,8 +113,8 @@ static XCMonkeyDeviceMetrics const XCMonkeyPhone6PlusDeviceMetrics = {
 @implementation MonkeyUITests
 
 static NSUInteger maxWeight;
-static NSUInteger weights[] = {XCMonkeyEventWeightTap, XCMonkeyEventWeightPan, XCMonkeyEventWeightPinchIn, XCMonkeyEventWeightBackgroundAndForeground};
-static NSUInteger events[] = {XCMonkeyEventTypeTap, XCMonkeyEventTypePan, XCMonkeyEventTypePinchIn, XCMonkeyEventTypeHome};
+static NSUInteger weights[] = {XCMonkeyEventWeightTap, XCMonkeyEventWeightPan, XCMonkeyEventWeightPinchIn, XCMonkeyEventWeightPinchOut,XCMonkeyEventWeightBackgroundAndForeground};
+static NSUInteger events[] = {XCMonkeyEventTypeTap, XCMonkeyEventTypePan, XCMonkeyEventTypePinchIn, XCMonkeyEventTypePinchOut, XCMonkeyEventTypeHome};
 
 - (void)setUp
 {
@@ -215,6 +217,9 @@ static CGPoint randomPointInFrame(CGRect frame)
         case XCMonkeyEventTypePinchIn:
             [self pinchIn];
             break;
+        case XCMonkeyEventTypePinchOut:
+            [self pinchOut];
+            break;
         case XCMonkeyEventTypeHome:
             [self home];
             break;
@@ -239,6 +244,14 @@ static CGPoint randomPointInFrame(CGRect frame)
     CGPoint point2 = randomPointInFrame(self.nonControlCenterFrame);
     
     [self pinchInWithPoint1:point1 point2:point2 duration:XCMonkeyEventPinchDuration];
+}
+
+- (void)pinchOut
+{
+    CGPoint point1 = randomPointInFrame(self.nonControlCenterFrame);
+    CGPoint point2 = randomPointInFrame(self.nonControlCenterFrame);
+    
+    [self pinchOutWithPoint1:point1 point2:point2 duration:XCMonkeyEventPinchDuration];
 }
 
 - (void)home
@@ -300,6 +313,30 @@ static CGPoint randomPointInFrame(CGRect frame)
         
         XCPointerEventPath *pointerEventPath2 = [[XCPointerEventPath alloc] initForTouchAtPoint:point2 offset:0];
         [pointerEventPath2 moveToPoint:midpoint atOffset:duration];
+        [pointerEventPath2 liftUpAtOffset:duration + XCMonkeyEventTapDuration];
+        
+        XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:nil interfaceOrientation:0];
+        [eventRecord addPointerEventPath:pointerEventPath1];
+        [eventRecord addPointerEventPath:pointerEventPath2];
+        eventRecord;
+    });
+    
+    void (^completion)(NSError *) = ^(NSError *error) {};
+    
+    [self.proxy _XCT_synthesizeEvent:eventRecord completion:completion];
+}
+
+- (void)pinchOutWithPoint1:(CGPoint)point1 point2:(CGPoint)point2 duration:(CGFloat)duration
+{
+    CGPoint midpoint = CGPointMake((point1.x + point2.x) / 2, (point1.y + point2.y) / 2);
+    
+    XCSynthesizedEventRecord *eventRecord = ({
+        XCPointerEventPath *pointerEventPath1 = [[XCPointerEventPath alloc] initForTouchAtPoint:midpoint offset:0];
+        [pointerEventPath1 moveToPoint:point1 atOffset:duration];
+        [pointerEventPath1 liftUpAtOffset:duration + XCMonkeyEventTapDuration];
+        
+        XCPointerEventPath *pointerEventPath2 = [[XCPointerEventPath alloc] initForTouchAtPoint:midpoint offset:0];
+        [pointerEventPath2 moveToPoint:point2 atOffset:duration];
         [pointerEventPath2 liftUpAtOffset:duration + XCMonkeyEventTapDuration];
         
         XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:nil interfaceOrientation:0];

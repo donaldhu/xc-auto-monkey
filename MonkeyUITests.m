@@ -237,27 +237,8 @@ static CGPoint randomPointInFrame(CGRect frame)
 {
     CGPoint point1 = randomPointInFrame(self.nonControlCenterFrame);
     CGPoint point2 = randomPointInFrame(self.nonControlCenterFrame);
-    CGPoint midpoint = CGPointMake((point1.x + point2.x) / 2,
-                                   (point1.y + point2.y) / 2);
     
-    XCSynthesizedEventRecord *eventRecord = ({
-        XCPointerEventPath *pointerEventPath1 = [[XCPointerEventPath alloc] initForTouchAtPoint:point1 offset:0];
-        [pointerEventPath1 moveToPoint:midpoint atOffset:XCMonkeyEventPinchDuration];
-        [pointerEventPath1 liftUpAtOffset:XCMonkeyEventPinchDuration + XCMonkeyEventTapDuration];
-        
-        XCPointerEventPath *pointerEventPath2 = [[XCPointerEventPath alloc] initForTouchAtPoint:point2 offset:0];
-        [pointerEventPath2 moveToPoint:midpoint atOffset:XCMonkeyEventPinchDuration];
-        [pointerEventPath2 liftUpAtOffset:XCMonkeyEventPinchDuration + XCMonkeyEventTapDuration];
-        
-        XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:nil interfaceOrientation:0];
-        [eventRecord addPointerEventPath:pointerEventPath1];
-        [eventRecord addPointerEventPath:pointerEventPath2];
-        eventRecord;
-    });
-    
-    void (^completion)(NSError *) = ^(NSError *error) {};
-    
-    [self.proxy _XCT_synthesizeEvent:eventRecord completion:completion];
+    [self pinchInWithPoint1:point1 point2:point2 duration:XCMonkeyEventPinchDuration];
 }
 
 - (void)home
@@ -300,6 +281,30 @@ static CGPoint randomPointInFrame(CGRect frame)
         
         XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:nil interfaceOrientation:0];
         [eventRecord addPointerEventPath:pointerEventPath];
+        eventRecord;
+    });
+    
+    void (^completion)(NSError *) = ^(NSError *error) {};
+    
+    [self.proxy _XCT_synthesizeEvent:eventRecord completion:completion];
+}
+
+- (void)pinchInWithPoint1:(CGPoint)point1 point2:(CGPoint)point2 duration:(CGFloat)duration
+{
+    CGPoint midpoint = CGPointMake((point1.x + point2.x) / 2, (point1.y + point2.y) / 2);
+
+    XCSynthesizedEventRecord *eventRecord = ({
+        XCPointerEventPath *pointerEventPath1 = [[XCPointerEventPath alloc] initForTouchAtPoint:point1 offset:0];
+        [pointerEventPath1 moveToPoint:midpoint atOffset:duration];
+        [pointerEventPath1 liftUpAtOffset:duration + XCMonkeyEventTapDuration];
+        
+        XCPointerEventPath *pointerEventPath2 = [[XCPointerEventPath alloc] initForTouchAtPoint:point2 offset:0];
+        [pointerEventPath2 moveToPoint:midpoint atOffset:duration];
+        [pointerEventPath2 liftUpAtOffset:duration + XCMonkeyEventTapDuration];
+        
+        XCSynthesizedEventRecord *eventRecord = [[XCSynthesizedEventRecord alloc] initWithName:nil interfaceOrientation:0];
+        [eventRecord addPointerEventPath:pointerEventPath1];
+        [eventRecord addPointerEventPath:pointerEventPath2];
         eventRecord;
     });
     

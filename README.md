@@ -1,6 +1,7 @@
 # XC AutoMonkey
 Blazingly fast monkey to stress test your iOS application
 
+![README](https://github.com/donaldhu/xc-auto-monkey/blob/master/readme_images/xc-monkey-trimmed.gif)
 # Installation
 1. In Xcode, create a new target with template `iOS UI Testing Bundle` (`File → New → Target → iOS UI Testing Bundle`)
 <img alt="Step 1" src="https://raw.github.com/donaldhu/xc-auto-monkey/master/readme_images/add_monkey_target.png">

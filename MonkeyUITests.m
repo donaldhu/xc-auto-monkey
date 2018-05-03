@@ -240,18 +240,16 @@ static CGPoint randomPointInFrame(CGRect frame)
 
 - (void)pinchIn
 {
-    CGPoint point1 = randomPointInFrame(self.nonControlCenterFrame);
-    CGPoint point2 = randomPointInFrame(self.nonControlCenterFrame);
-    
-    [self pinchInWithPoint1:point1 point2:point2 duration:XCMonkeyEventPinchDuration];
+    [self pinchInWithPoint1:randomPointInFrame(self.nonControlCenterFrame)
+                     point2:randomPointInFrame(self.nonControlCenterFrame)
+                   duration:XCMonkeyEventPinchDuration];
 }
 
 - (void)pinchOut
 {
-    CGPoint point1 = randomPointInFrame(self.nonControlCenterFrame);
-    CGPoint point2 = randomPointInFrame(self.nonControlCenterFrame);
-    
-    [self pinchOutWithPoint1:point1 point2:point2 duration:XCMonkeyEventPinchDuration];
+    [self pinchOutWithPoint1:randomPointInFrame(self.nonControlCenterFrame)
+                      point2:randomPointInFrame(self.nonControlCenterFrame)
+                    duration:XCMonkeyEventPinchDuration];
 }
 
 - (void)home

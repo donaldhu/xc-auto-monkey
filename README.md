@@ -26,13 +26,14 @@ static NSTimeInterval const XCMonkeyDuration = 60 * 60 * 5; // In seconds
 
 static NSUInteger const XCMonkeyEventWeightTap = 500;
 static NSUInteger const XCMonkeyEventWeightPan = 50;
+static NSUInteger const XCMonkeyEventWeightPinchIn = 50;
+static NSUInteger const XCMonkeyEventWeightPinchOut = 50;
 static NSUInteger const XCMonkeyEventWeightBackgroundAndForeground = 1;
 ```
 
 # Coming Soon
 * New gestures and events
   * Orientation
-  * Pinch open and close
   * Volume up and down
   * Multiple taps
   * Lock
